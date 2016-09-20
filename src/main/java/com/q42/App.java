@@ -53,7 +53,7 @@ public class App {
 
 				// Get the next Blob, skip it if it's empty
 				BlobInfo blobInfo = (BlobInfo) blobsIterator.next();
-				if (blobInfo.getSize() == 0 || totalNrOfBlobs > 10) {
+				if (blobInfo.getSize() == 0) {
 					continue;
 				} else {
 					blobInfoArray.add(blobInfo);
@@ -78,7 +78,7 @@ public class App {
 				downloadedBlobCount++;
 
 				// Output some information every 100 blobs
-				if (downloadedBlobCount % 2 == 0) {
+				if (downloadedBlobCount % 100 == 0) {
 					System.out.println(
 							"- Downloaded: " + downloadedBlobCount + " blobs in: " + getDuration(sw.getTime()));
 				}
