@@ -22,8 +22,8 @@ import com.google.appengine.tools.remoteapi.RemoteApiOptions;
 public class App {
 	public static void main(String[] args) throws IOException {
 		// Set variables
-		// int threadCount = 10;
 		int totalNrOfBlobs = 0;
+		int nonEmptyBlobCount = 0;
 		int downloadedBlobCount = 0;
 
 		// This is the url of you GAE project, and can also be a subversion.
@@ -40,13 +40,12 @@ public class App {
 		RemoteApiInstaller installer = new RemoteApiInstaller();
 		installer.install(options);
 
-		// When there are more than 1000 results, you'll get a 'logChunkSizeWarning'.
-		// This warning is ignored in the demo.
-		List<BlobInfo> blobInfoArray = new ArrayList<BlobInfo>();
 		try {
-			sw.start();
 			System.out.println("-----------STARTED-----------");
+			sw.start();
 
+			// When there are more than 1000 results, you'll get a 'logChunkSizeWarning'.
+			// This warning is ignored in the demo.
 			Iterator<BlobInfo> blobsIterator = new BlobInfoFactory().queryBlobInfos();
 			while (blobsIterator.hasNext()) {
 				totalNrOfBlobs++;
@@ -55,13 +54,10 @@ public class App {
 				BlobInfo blobInfo = (BlobInfo) blobsIterator.next();
 				if (blobInfo.getSize() == 0) {
 					continue;
-				} else {
-					blobInfoArray.add(blobInfo);
-				}
-			}
+				};
+				
+				nonEmptyBlobCount++;
 
-			// ExecutorService pool = Executors.newFixedThreadPool(threadCount);
-			for (BlobInfo blobInfo : blobInfoArray) {
 				// Create the new output path
 				String outputPath = OUTPUT_FOLDER + "/" + createFilenameFromBlobInfo(blobInfo);
 
@@ -71,27 +67,19 @@ public class App {
 					continue;
 				}
 
+				//Download the blob
 				InputStream in = new BlobstoreInputStream(blobInfo.getBlobKey());
 				FileOutputStream out = new FileOutputStream(outputPath);
 				IOUtils.copy(in, out);
 				IOUtils.closeQuietly(out);
+
 				downloadedBlobCount++;
 
 				// Output some information every 100 blobs
 				if (downloadedBlobCount % 100 == 0) {
-					System.out.println(
-							"- Downloaded: " + downloadedBlobCount + " blobs in: " + getDuration(sw.getTime()));
+					System.out.println("- Downloaded: " + downloadedBlobCount + " blobs in: " + getDuration(sw.getTime()));
 				}
-
-				// Download the blobs with multiple threads
-				// Runnable worker = new Downloader(blobInfo.getBlobKey(),
-				// outputPath);
-				// pool.submit(worker);
 			}
-
-			// Disable new tasks from being submitted
-			// pool.shutdown();
-			// pool.awaitTermination(1, TimeUnit.DAYS);
 		} catch (Exception e) {
 			System.out.println("Error: " + e);
 		} finally {
@@ -99,8 +87,8 @@ public class App {
 		}
 
 		sw.stop();
-		System.out.println("- Summary: totalBlobs: " + totalNrOfBlobs + ", not empty blobs: " + blobInfoArray.size()
-				+ ", downloaded this run: " + downloadedBlobCount + ", time taken: " + getDuration(sw.getTime()));
+		System.out.println("- Summary: totalBlobs: " + totalNrOfBlobs + ", not empty blobs: " + nonEmptyBlobCount + ", downloaded this run: " + downloadedBlobCount
+				+ ", time taken: " + getDuration(sw.getTime()));
 		System.out.println("-----------FINISHED-----------");
 	}
 
