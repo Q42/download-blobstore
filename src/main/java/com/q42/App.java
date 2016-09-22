@@ -26,7 +26,7 @@ public class App {
 		int nonEmptyBlobCount = 0;
 		int downloadedBlobCount = 0;
 
-		// This is the url of you GAE project, and can also be a subversion.
+		// This is the URL of you GAE project, and can also be a subversion.
 		final String SERVER_STRING = "v19-dot-q42-declaraties.appspot.com";
 		final String OUTPUT_FOLDER = "_output";
 		StopWatch sw = new StopWatch();
