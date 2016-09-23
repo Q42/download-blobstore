@@ -1,12 +1,10 @@
 package com.q42;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -20,23 +18,45 @@ import com.google.appengine.tools.remoteapi.RemoteApiInstaller;
 import com.google.appengine.tools.remoteapi.RemoteApiOptions;
 
 public class App {
+
+	private static final String SETTINGS_FILE = "settings.properties";
+
+	private static String getSetting(String key, Properties settings) {
+
+		String value = (String) settings.get(key);
+
+		if (value == null || value.trim().isEmpty()) {
+			System.err.println("'" + key + "' not found in " + SETTINGS_FILE);
+			System.exit(1);
+		}
+
+		return value;
+	}
+
 	public static void main(String[] args) throws IOException {
+
+		final Properties settings = new Properties();
+		settings.load(new FileInputStream("settings.properties"));
+
 		// Set variables
 		int totalNrOfBlobs = 0;
 		int nonEmptyBlobCount = 0;
 		int downloadedBlobCount = 0;
 
 		// This is the URL of you GAE project, and can also be a subversion.
-		final String SERVER_STRING = "[your_app_id].appspot.com";
-		final String OUTPUT_FOLDER = "_output";
+		final String serverString = String.format("%s.appspot.com", getSetting("appId", settings));
+		final String outputFolder = getSetting("outputFolder", settings);
 		StopWatch sw = new StopWatch();
 
 		// Create the output directory
-		File dir = new File(OUTPUT_FOLDER);
-		dir.mkdir();
+		File dir = new File(outputFolder);
+		if (!dir.mkdir()) {
+			System.err.println("could not create folder '" + dir.getAbsolutePath() + "'");
+			System.exit(2);
+		}
 
 		// Connect to the remote API
-		RemoteApiOptions options = new RemoteApiOptions().server(SERVER_STRING, 443).useApplicationDefaultCredential();
+		RemoteApiOptions options = new RemoteApiOptions().server(serverString, 443).useApplicationDefaultCredential();
 		RemoteApiInstaller installer = new RemoteApiInstaller();
 		installer.install(options);
 
@@ -59,7 +79,7 @@ public class App {
 				nonEmptyBlobCount++;
 
 				// Create the new output path
-				String outputPath = OUTPUT_FOLDER + "/" + createFilenameFromBlobInfo(blobInfo);
+				String outputPath = outputFolder + "/" + createFilenameFromBlobInfo(blobInfo);
 
 				// Skip already existing files
 				File file = new File(outputPath);
@@ -81,7 +101,8 @@ public class App {
 				}
 			}
 		} catch (Exception e) {
-			System.out.println("Error: " + e);
+			System.err.println("Error: " + e);
+			e.printStackTrace();
 		} finally {
 			installer.uninstall();
 		}
@@ -99,10 +120,10 @@ public class App {
 
 	public static String createFilenameFromBlobInfo(BlobInfo blobInfo) {
 		String filename = blobInfo.getFilename();
-		return blobInfo.getBlobKey().getKeyString() + getExtentionFromFilename(filename);
+		return blobInfo.getBlobKey().getKeyString() + getExtensionFromFilename(filename);
 	}
 
-	public static String getExtentionFromFilename(String filename) {
+	public static String getExtensionFromFilename(String filename) {
 		String extension = "";
 
 		int index = filename.lastIndexOf('.');
