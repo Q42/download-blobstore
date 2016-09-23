@@ -50,10 +50,7 @@ public class App {
 
 		// Create the output directory
 		File dir = new File(outputFolder);
-		if (!dir.mkdir()) {
-			System.err.println("could not create folder '" + dir.getAbsolutePath() + "'");
-			System.exit(2);
-		}
+		dir.mkdir();
 
 		// Connect to the remote API
 		RemoteApiOptions options = new RemoteApiOptions().server(serverString, 443).useApplicationDefaultCredential();
