@@ -8,7 +8,9 @@ settings.properties
 # Eclipse files
 .project
 .classpath
+.settings/
 
 # IntelliJ files
 .idea/
 *.iml
+
