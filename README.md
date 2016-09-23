@@ -3,7 +3,7 @@ Download the contents of the GAE blobstore to local disk with help
 of the [Remote API](https://cloud.google.com/appengine/docs/java/tools/remoteapi). 
 
 ## Set up Remote API support for your current GAE project
-Add this servlet and servetmapping to your current web.xml en deploy your app.
+Add this servlet and servletmapping to your current web.xml en deploy your app.
 
 ```
 <servlet>
