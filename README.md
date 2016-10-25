@@ -44,3 +44,5 @@ Next you could:
   from the Blobstore is newer than the local version before you skip it.
 - Introduce chunking for `queryBlobInfos`.
 
+## License
+Download your Blobstore is available under the MIT license, so feel free to use it in commercial and non-commercial projects. See the license file for more info.
